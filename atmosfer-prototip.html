@@ -790,7 +790,7 @@ LIBRARY.forEach((item, i) => {
   }
 });
 
-const state = { activeFilter:'all', activeOccasion:'all', activeGender:'all', activeTab:'discover', saved:new Set(), user:null, communityItems:null, showUploadForm:false };
+const state = { activeFilter:'all', activeOccasion:'all', activeGender:'all', activeTab:'discover', saved:new Set(), user:null, communityItems:null, communityError:null, showUploadForm:false };
 
 function updateSavedCount(){
   document.getElementById('savedCount').textContent = state.saved.size;
@@ -880,13 +880,20 @@ sb.auth.onAuthStateChange((event, session) => {
    TOPLULUK KOMBİNLERİ
 --------------------------------------------------------- */
 async function loadCommunityOutfits(){
-  state.communityItems = [];
+  state.communityItems = null;
+  state.communityError = null;
   renderGrid();
   const { data, error } = await sb
     .from('community_outfits')
     .select('*')
     .order('created_at', { ascending: false });
-  state.communityItems = (!error && data) ? data : [];
+  if(error){
+    state.communityItems = [];
+    state.communityError = error.message || JSON.stringify(error);
+  } else {
+    state.communityItems = data || [];
+    state.communityError = null;
+  }
   renderGrid();
 }
 
@@ -947,6 +954,7 @@ function renderUploadForm(){
           <button type="button" class="upload-cancel" id="uploadCancelBtn">Vazgeç</button>
           <span class="upload-status" id="uploadStatus"></span>
         </div>
+        <p class="upload-login-note" style="margin-top:10px;">Lütfen yalnızca kendi çektiğin/kendine ait kombin fotoğraflarını paylaş.</p>
       </form>
     </div>
   `;
@@ -1102,7 +1110,9 @@ function renderGrid(highlightCat){
       return;
     }
     if(communityItems.length === 0){
-      grid.innerHTML = `<p class="empty">henüz kimse kombin paylaşmamış — ilk sen olabilirsin!</p>`;
+      grid.innerHTML = state.communityError
+        ? `<p class="empty">bir hata oluştu: ${state.communityError}</p>`
+        : `<p class="empty">henüz kimse kombin paylaşmamış — ilk sen olabilirsin!</p>`;
       return;
     }
 
