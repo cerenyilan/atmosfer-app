@@ -342,7 +342,10 @@
     font-family:'Space Mono', monospace; font-size:12.5px; color: var(--slate);
   }
 
-  .community-photo{ width:100%; display:block; object-fit:cover; aspect-ratio: 4/5; background: var(--paper-2); }
+  .community-art{
+    width:100%; overflow:hidden; background: var(--paper-2); position:relative;
+  }
+  .community-photo{ width:100%; display:block; object-fit:cover; aspect-ratio: 4/5; }
   .delete-btn{
     position:absolute; top:10px; left:10px;
     width:28px; height:28px; border-radius:50%; border:none;
@@ -1120,7 +1123,7 @@ function renderGrid(highlightCat){
       const isOwner = state.user && item.user_id === state.user.id;
       return `
         <div class="card">
-          <div class="card-art">
+          <div class="community-art">
             <img class="community-photo" src="${item.image_url}" alt="${item.title}" loading="lazy">
           </div>
           ${isOwner ? `<button class="delete-btn" data-id="${item.id}">✕</button>` : ''}
